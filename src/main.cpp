@@ -82,32 +82,6 @@ const char index_html[] PROGMEM = R"rawliteral(
 </body>
 </html>)rawliteral";
 
-esp_err_t index_httpd_handler(httpd_req_t *req){
-    esp_err_t res = ESP_OK;
-
-    res = httpd_resp_set_type(req, "text/html");
-
-    if(res == ESP_OK){
-      res = httpd_resp_send(req, index_html, strlen(index_html));
-    }
-    return res;
-}
-
-esp_err_t jpg_httpd_handler(httpd_req_t *req){
-    esp_err_t res = ESP_OK;
-    res = httpd_handler(req);
-    return res;
-}
-
-esp_err_t flash_jpg_httpd_handler(httpd_req_t *req){
-    esp_err_t res = ESP_OK;
-    digitalWrite(4, HIGH);
-    delay(1000);
-    res = httpd_handler(req);
-    digitalWrite(4, LOW);
-    return res;
-}
-
 esp_err_t httpd_handler(httpd_req_t *req){
     camera_fb_t * fb = NULL;
     esp_err_t res = ESP_OK;
@@ -139,6 +113,32 @@ esp_err_t httpd_handler(httpd_req_t *req){
     esp_camera_fb_return(fb);
     int64_t fr_end = esp_timer_get_time();
     ESP_LOGI(TAG, "JPG: %uKB %ums", (uint32_t)(fb_len/1024), (uint32_t)((fr_end - fr_start)/1000));
+    return res;
+}
+
+esp_err_t index_httpd_handler(httpd_req_t *req){
+    esp_err_t res = ESP_OK;
+
+    res = httpd_resp_set_type(req, "text/html");
+
+    if(res == ESP_OK){
+      res = httpd_resp_send(req, index_html, strlen(index_html));
+    }
+    return res;
+}
+
+esp_err_t jpg_httpd_handler(httpd_req_t *req){
+    esp_err_t res = ESP_OK;
+    res = httpd_handler(req);
+    return res;
+}
+
+esp_err_t flash_jpg_httpd_handler(httpd_req_t *req){
+    esp_err_t res = ESP_OK;
+    digitalWrite(4, HIGH);
+    delay(1000);
+    res = httpd_handler(req);
+    digitalWrite(4, LOW);
     return res;
 }
 
@@ -203,7 +203,7 @@ void setup() {
   config.pin_sscb_scl = SIOC_GPIO_NUM;
   config.pin_pwdn = PWDN_GPIO_NUM;
   config.pin_reset = RESET_GPIO_NUM;
-  config.xclk_freq_hz = 20000000;
+  config.xclk_freq_hz = 10000000;
   config.pixel_format = PIXFORMAT_JPEG;
 
   if(psramFound()){
